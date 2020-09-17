@@ -1,0 +1,28 @@
+{
+  "name": "frequency-station-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "start": "node build/server.js",
+    "build": "tsc",
+    "postinstall": "npm run build",
+    "dev": "nodemon ./src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nils Westhoff",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.7",
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "nodemon": "^2.0.4",
+    "socket.io": "^2.3.0",
+    "ts-node": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.27",
+    "@types/socket.io": "^2.1.11",
+    "typescript": "^3.9.7"
+  }
+}
