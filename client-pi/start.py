@@ -12,8 +12,9 @@ compass_brackets = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
 
 class CurrentBeacon:
     def __init__(self, rssi=None, bt_addr=None):
-        self.kf = KalmanFilter(initial_state_mean=-90, n_dim_obs=10)
-        self.means, self.covariances = self.kf.filter()
+        kf = KalmanFilter(initial_state_mean=-90, n_dim_obs=10)
+        self.kf = kf
+        self.means, self.covariances = kf.filter()
         self.rssi = rssi
         self.bt_addr = bt_addr
 
