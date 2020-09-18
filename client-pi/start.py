@@ -12,16 +12,17 @@ compass_brackets = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
 
 class CurrentBeacon:
     def __init__(self, rssi=None, bt_addr=None):
-        kf = KalmanFilter(initial_state_mean=-90, n_dim_obs=10)
-        self.kf = kf
-        self.means, self.covariances = kf.filter()
+        self.kf = KalmanFilter(initial_state_mean=-90, n_dim_obs=10)
         self.rssi = rssi
         self.bt_addr = bt_addr
+        self.set_filter()
+
+    def set_filter(self):
+    self.means, self.covariances = self.kf.filter()
 
     def __setattr__(self, name, value):
-        self.next_mean, self.next_covariance = self.["kf"].filter_update(
-            self.means[-1], self.covariances[-1], value
-        )
+        self.next_mean, self.next_covariance = self.kf.filter_update(
+            self.means[-1], self.covariances[-1], value)
         self.__dict__[name] = value
 
 
