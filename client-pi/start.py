@@ -19,7 +19,7 @@ class CurrentBeacon:
         self.bt_addr = bt_addr
 
     def __setattr__(self, name, value):
-        self.next_mean, self.next_covariance = self.kf.filter_update(
+        self.next_mean, self.next_covariance = self.["kf"].filter_update(
             self.means[-1], self.covariances[-1], value
         )
         self.__dict__[name] = value
