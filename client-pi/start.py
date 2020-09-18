@@ -2,6 +2,7 @@ import socketio
 from envirophat import motion, analog, leds
 import time
 from beacontools import BeaconScanner, EddystoneUIDFrame, EddystoneTLMFrame, EddystoneFilter
+from pykalman import KalmanFilter
 
 # INITIALISATION START
 
@@ -11,10 +12,15 @@ compass_brackets = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
 
 class CurrentBeacon:
     def __init__(self, rssi=None, bt_addr=None):
+        self.kf = KalmanFilter(initial_state_mean=-90, n_dim_obs=10)
+        self.means, self.covariances = self.kf.filter()
         self.rssi = rssi
         self.bt_addr = bt_addr
 
     def __setattr__(self, name, value):
+        self.next_mean, self.next_covariance = self.kf.filter_update(
+            self.means[-1], self.covariances[-1], value
+        )
         self.__dict__[name] = value
 
 
@@ -47,8 +53,9 @@ def beaconMsg(bt_addr, rssi, packet, additional_info):
 
 
 scanner = BeaconScanner(beaconMsg,
-                        # device_filter=EddystoneFilter(namespace="12345678901234678901"),
-                        packet_filter=[EddystoneUIDFrame, EddystoneTLMFrame]
+                        device_filter=EddystoneFilter(
+                            namespace=["f7826da6bc5b71e0893e"]),
+                        packet_filter=[EddystoneUIDFrame]
                         )
 
 # INITIALISATION DONE
@@ -61,7 +68,7 @@ try:
     while True:
         data = {
             "bt_addr": currentBeacon.bt_addr,
-            "rssi": currentBeacon.rssi,
+            "rssi": currentBeacon.next_mean,
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
