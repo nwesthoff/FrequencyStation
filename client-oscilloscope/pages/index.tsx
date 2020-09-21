@@ -69,6 +69,27 @@ export default function Home() {
       sunPlayer.connect(sunGain);
 
       socket.on("message", (msg: MagnetoMessage) => {
+        if (msg.bt_addr === "f4:fd:48:5f:3c:0c") {
+          // BEACONID: MutPUc
+          setLastMsg(msg); // Only set gain for one of the beacons
+
+          sulfurGain.set({
+            gain: gainCalculation(msg.rssi),
+          });
+        } else if (msg.bt_addr === "cf:99:79:62:06:42") {
+          // BEACONID: MukIO3
+          sunGain.set({
+            gain: gainCalculation(msg.rssi),
+          });
+        } else if (msg.bt_addr === "fb:f3:2f:d2:92:80") {
+          // BEACONID: MuEx2Q
+          moonGain.set({
+            gain: gainCalculation(msg.rssi),
+          });
+        } else {
+          console.log(msg.bt_addr);
+        }
+
         fx1.set({
           wet: limitValue(
             offsetFrom(msg?.knobs?.balance, config.earthFieldBalance)
@@ -86,21 +107,6 @@ export default function Home() {
             offsetFrom(msg?.knobs?.variance, config.magneticVariance)
           ),
         });
-
-        sunGain.set({
-          gain: gainCalculation(msg.rssi, config.sunGainTarget),
-        });
-        moonGain.set({
-          gain: 0,
-        });
-        earthGain.set({
-          gain: 0,
-        });
-        sulfurGain.set({
-          gain: gainCalculation(msg.rssi, config.sulfurGainTarget),
-        });
-
-        setLastMsg(msg);
       });
 
       return () => {
@@ -130,14 +136,7 @@ export default function Home() {
         </h1>
         <hr />
         <h2>Gain: {Math.abs(lastMsg?.rssi / 100)}</h2>
-        <h3>
-          Sun Gain:{" "}
-          {gainCalculation(lastMsg?.rssi, config.sunGainTarget).toFixed(2)}
-        </h3>
-        <h3>
-          Sulfur Gain:{" "}
-          {gainCalculation(lastMsg?.rssi, config.sulfurGainTarget).toFixed(2)}
-        </h3>
+        <h3>Sulfur Gain: {gainCalculation(lastMsg?.rssi).toFixed(2)}</h3>
         <hr />
         <h3>
           variance:{lastMsg?.knobs?.variance} | offset:{" "}
