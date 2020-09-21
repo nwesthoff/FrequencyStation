@@ -66,7 +66,7 @@ try:
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
-                "heading": motion.heading(),
+                "heading": (motion.heading() - north) % 360,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)
