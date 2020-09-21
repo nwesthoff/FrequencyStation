@@ -18,7 +18,7 @@ class CurrentBeacon:
         self.set_filter()
 
     def set_filter(self):
-    self.means, self.covariances = self.kf.filter()
+        self.means, self.covariances = self.kf.filter()
 
     def __setattr__(self, name, value):
         self.next_mean, self.next_covariance = self.kf.filter_update(
