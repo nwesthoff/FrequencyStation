@@ -6,9 +6,9 @@ from i2clibraries import i2c_hmc5883l
 
 # INITIALISATION START
 
-heading = i2c_hmc5883l.i2c_hmc5883l(1)
-heading.setContinuousMode()
-heading.setDeclination(1, 47)
+compass = i2c_hmc5883l.i2c_hmc5883l(1)
+compass.setContinuousMode()
+compass.setDeclination(1, 47)
 
 
 class CurrentBeacon:
@@ -61,20 +61,20 @@ try:
     scanner.start()
     sio.connect('https://frequency-station-server.herokuapp.com/')
     print('started server')
-    print(heading)
     while True:
+        print(compass.Heading)
         data = {
             "bt_addr": currentBeacon.bt_addr,
             "rssi": currentBeacon.rssi,
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
-                # "heading": heading,
+                # "compass": compass,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)
             }}
-        print("data: ", data)
+        # print("data: ", data)
         time.sleep(.2)
         my_message(data)
 
