@@ -61,6 +61,7 @@ try:
     scanner.start()
     sio.connect('https://frequency-station-server.herokuapp.com/')
     print('started server')
+    print(heading)
     while True:
         data = {
             "bt_addr": currentBeacon.bt_addr,
@@ -68,7 +69,7 @@ try:
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
-                "heading": heading,
+                # "heading": heading,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)
