@@ -21,6 +21,7 @@ export interface MagnetoMessage {
   rssi: number;
   bt_addr: string;
   knobs: {
+    heading?: number;
     balance: number;
     frequency: number;
     variance: number;
@@ -99,7 +100,7 @@ export default function Home() {
 
         fx1.set({
           wet: limitValue(
-            offsetFrom(msg?.knobs?.balance, config.earthFieldBalance)
+            offsetFrom(msg?.knobs?.heading, config.earthFieldBalance)
           ),
         });
 

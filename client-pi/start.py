@@ -2,11 +2,13 @@ import socketio
 from envirophat import motion, analog, leds
 import time
 from beacontools import BeaconScanner, EddystoneUIDFrame, EddystoneTLMFrame, EddystoneFilter
+from i2clibraries import i2c_hmc5883l
 
 # INITIALISATION START
 
-north = motion.heading()
-compass_brackets = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+heading = i2c_hmc5883l.i2c_hmc5883l(1)
+heading.setContinuousMode()
+heading.setDeclination(1, 47)
 
 
 class CurrentBeacon:
@@ -66,7 +68,7 @@ try:
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
-                "heading": (motion.heading() - north) % 360,
+                "heading": heading,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)
