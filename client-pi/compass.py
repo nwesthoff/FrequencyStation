@@ -7,7 +7,7 @@ from i2clibraries import i2c_hmc5883l
 compass = i2c_hmc5883l.i2c_hmc5883l(1)
 compass.setContinuousMode()
 compass.setDeclination(1, 47)
-ß
+
 # INITIALISATION DONE
 
 
