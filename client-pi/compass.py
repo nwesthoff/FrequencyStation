@@ -1,4 +1,4 @@
-from envirophat import leds
+from envirophat import motion, analog, leds
 import time
 from i2clibraries import i2c_hmc5883l
 
@@ -14,8 +14,9 @@ compass.setDeclination(1, 47)
 try:
     print('started compass')
     while True:
-        heading = compass.getHeading()
-        print(heading)
+        (heading, minutes) = compass.getHeading()
+        compareHeading = motion.heading()
+        print(heading, compareHeading)
         time.sleep(.2)
 
 except KeyboardInterrupt:
