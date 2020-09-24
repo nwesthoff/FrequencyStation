@@ -69,7 +69,7 @@ try:
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
-                "compass": heading,
+                "heading": heading,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)
