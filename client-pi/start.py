@@ -62,20 +62,19 @@ try:
     sio.connect('https://frequency-station-server.herokuapp.com/')
     print('started server')
     while True:
-        heading = compass.getHeading()
-        print(heading)
+        (heading, minutes) = compass.getHeading()
         data = {
             "bt_addr": currentBeacon.bt_addr,
             "rssi": currentBeacon.rssi,
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
-                # "compass": compass,
+                "compass": heading,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)
             }}
-        # print("data: ", data)
+        print("data: ", data)
         time.sleep(.2)
         my_message(data)
 
