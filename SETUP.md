@@ -30,7 +30,9 @@ It should look something like this
 
 ![](docs/loopback.jpg)
 
-You're ready to open the oscilloscope app. Click on the microphone icon and select your Loopback device (`OscilloscopeLoopback`).
+You're ready to open the oscilloscope app. Click on the microphone icon and select your Loopback device (`Rogue Amoeba Sofware, Inc: OscilloscopeLoopback`).
+
+![](docs/oscilloscope-mac.jpg)
 
 ## 3. The 'Magnetoscope' 📡
 
