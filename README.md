@@ -3,6 +3,12 @@
 This is one of the interactions I made for Sherlocked's new adventure; The Alchemist.
 Read [SETUP.md](SETUP.md) to learn how it should be setup before use.
 
+You're able to find three symbols to solve a puzzle later on.
+
+![](docs/universe-circle.gif)
+![](docs/earth-square.gif)
+![](docs/amsterdam-triangle.gif)
+
 ## Development
 
 1. In `client-oscilloscope` you find the sound generation engine
