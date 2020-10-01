@@ -24,7 +24,6 @@ export default function Home() {
     process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"
   );
   const [lastMsg, setLastMsg] = useState<MagnetoMessage>(null);
-  const [AudioCtxStarted, setAudioCtxStarted] = useState<boolean>(false);
 
   useEffect(() => {
     const fx1 = new BitCrusher({
@@ -161,15 +160,6 @@ export default function Home() {
           ).toFixed(2)}
         </h3>
       </main>
-
-      {/* <button
-        onClick={() => {
-          setAudioCtxStarted(!AudioCtxStarted);
-        }}
-      >
-        {AudioCtxStarted ? "Stop" : "Start"} Sound
-      </button>
-      {AudioCtxStarted ? <Sound msg={lastMsg} /> : null} */}
     </div>
   );
 }
