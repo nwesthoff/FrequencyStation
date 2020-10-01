@@ -2,27 +2,21 @@ import socketio
 from envirophat import motion, analog, leds
 import time
 from beacontools import BeaconScanner, EddystoneUIDFrame, EddystoneTLMFrame, EddystoneFilter
-from pykalman import KalmanFilter
+from i2clibraries import i2c_hmc5883l
 
 # INITIALISATION START
 
-north = motion.heading()
-compass_brackets = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
+compass = i2c_hmc5883l.i2c_hmc5883l(1)
+compass.setContinuousMode()
+compass.setDeclination(1, 47)
 
 
 class CurrentBeacon:
     def __init__(self, rssi=None, bt_addr=None):
-        self.kf = KalmanFilter(initial_state_mean=-90, n_dim_obs=10)
         self.rssi = rssi
         self.bt_addr = bt_addr
-        self.set_filter()
-
-    def set_filter(self):
-        self.means, self.covariances = self.kf.filter()
 
     def __setattr__(self, name, value):
-        self.next_mean, self.next_covariance = self.kf.filter_update(
-            self.means[-1], self.covariances[-1], value)
         self.__dict__[name] = value
 
 
@@ -68,12 +62,14 @@ try:
     sio.connect('https://frequency-station-server.herokuapp.com/')
     print('started server')
     while True:
+        (heading, minutes) = compass.getHeading()
         data = {
             "bt_addr": currentBeacon.bt_addr,
-            "rssi": currentBeacon.next_mean,
+            "rssi": currentBeacon.rssi,
             # "packet": packet,
             # "additional_info": additional_info,
             "knobs": {
+                "heading": heading,
                 "balance": round(analog.read(0)/5, 2),
                 "variance": round(analog.read(1)/5, 2),
                 "frequency": round(analog.read(2)/5, 2)

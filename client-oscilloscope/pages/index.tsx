@@ -6,13 +6,22 @@ import Sound from "../components/Sound";
 import { offsetFrom } from "../components/utils/OffsetFrom";
 import { gainCalculation } from "../components/utils/GainCalculation";
 import { config } from "../config";
-import { Player, BitCrusher, PingPongDelay, Freeverb, Gain } from "tone";
+import {
+  Player,
+  BitCrusher,
+  PingPongDelay,
+  Freeverb,
+  Gain,
+  PitchShift,
+} from "tone";
 import { limitValue } from "../components/utils/LimitValue";
+import KalmanFilter from "kalmanjs";
 
 export interface MagnetoMessage {
   rssi: number;
   bt_addr: string;
   knobs: {
+    heading?: number;
     balance: number;
     frequency: number;
     variance: number;
@@ -24,30 +33,26 @@ export default function Home() {
     process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"
   );
   const [lastMsg, setLastMsg] = useState<MagnetoMessage>(null);
+  const filteredRssi = {
+    MutPUc: new KalmanFilter(),
+    MuEx2Q: new KalmanFilter(),
+    MukIO3: new KalmanFilter(),
+  };
 
   useEffect(() => {
     const fx1 = new BitCrusher({
       bits: 4,
     }).toDestination();
-    const fx2 = new PingPongDelay("4n", 0.2).connect(fx1);
+    const fx2 = new PitchShift(12).connect(fx1);
     const fx3 = new Freeverb().connect(fx2);
 
     const moonGain = new Gain(0).connect(fx3);
-    const earthGain = new Gain(0).connect(fx3);
     const sulfurGain = new Gain(0).connect(fx3);
     const sunGain = new Gain(0).connect(fx3);
 
     socket?.on("connect", (res) => {
-      console.log(res);
-
       const moonPlayer = new Player({
         url: "/audio/moon.wav",
-        loop: true,
-        autostart: true,
-      });
-
-      const earthPlayer = new Player({
-        url: "/audio/earth.wav",
         loop: true,
         autostart: true,
       });
@@ -63,14 +68,39 @@ export default function Home() {
       });
 
       moonPlayer.connect(moonGain);
-      earthPlayer.connect(earthGain);
       sulfurPlayer.connect(sulfurGain);
       sunPlayer.connect(sunGain);
 
       socket.on("message", (msg: MagnetoMessage) => {
+        if (msg.bt_addr === "f4:fd:48:5f:3c:0c") {
+          // BEACONID: MutPUc
+          const filteredRSSI = filteredRssi.MutPUc.filter(msg.rssi);
+          sulfurGain.set({
+            gain: gainCalculation(filteredRSSI),
+          });
+        } else if (msg.bt_addr === "cf:99:79:62:06:42") {
+          // BEACONID: MukIO3
+          const filteredRSSI = filteredRssi.MukIO3.filter(msg.rssi);
+
+          sunGain.set({
+            gain: gainCalculation(filteredRSSI),
+          });
+        } else if (msg.bt_addr === "fb:f3:2f:d2:92:80") {
+          // BEACONID: MuEx2Q
+          const filteredRSSI = filteredRssi.MuEx2Q.filter(msg.rssi);
+
+          setLastMsg({ ...msg, rssi: filteredRSSI });
+
+          moonGain.set({
+            gain: gainCalculation(filteredRSSI),
+          });
+        } else {
+          // console.log(msg.bt_addr);
+        }
+
         fx1.set({
           wet: limitValue(
-            offsetFrom(msg?.knobs?.balance, config.earthFieldBalance)
+            offsetFrom(msg?.knobs?.heading, config.earthFieldBalance)
           ),
         });
 
@@ -85,26 +115,12 @@ export default function Home() {
             offsetFrom(msg?.knobs?.variance, config.magneticVariance)
           ),
         });
-
-        sunGain.set({
-          gain: gainCalculation(msg.rssi, config.sunGainTarget),
-        });
-        moonGain.set({
-          gain: 0,
-        });
-        earthGain.set({
-          gain: 0,
-        });
-        sulfurGain.set({
-          gain: gainCalculation(msg.rssi, config.sulfurGainTarget),
-        });
-
-        setLastMsg(msg);
       });
 
       return () => {
         moonPlayer.dispose();
-        earthPlayer.dispose();
+        sulfurPlayer.dispose();
+        sunPlayer.dispose();
         fx1.dispose();
         fx2.dispose();
         fx3.dispose();
@@ -128,14 +144,9 @@ export default function Home() {
           app
         </h1>
         <hr />
-        <h2>Gain: {Math.abs(lastMsg?.rssi / 100)}</h2>
         <h3>
-          Sun Gain:{" "}
-          {gainCalculation(lastMsg?.rssi, config.sunGainTarget).toFixed(2)}
-        </h3>
-        <h3>
-          Sulfur Gain:{" "}
-          {gainCalculation(lastMsg?.rssi, config.sulfurGainTarget).toFixed(2)}
+          MuEx2Q RSSI: {lastMsg?.rssi.toFixed(2)} | Gain:{" "}
+          {gainCalculation(lastMsg?.rssi).toFixed(2)}
         </h3>
         <hr />
         <h3>
