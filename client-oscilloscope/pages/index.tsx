@@ -2,24 +2,17 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { useSocket } from "../api/useSocket";
-import Sound from "../components/Sound";
 import { offsetFrom } from "../components/utils/OffsetFrom";
 import { gainCalculation } from "../components/utils/GainCalculation";
 import { config } from "../config";
-import {
-  Player,
-  BitCrusher,
-  PingPongDelay,
-  Freeverb,
-  Gain,
-  PitchShift,
-} from "tone";
+import { Player, BitCrusher, Freeverb, Gain, PitchShift } from "tone";
 import { limitValue } from "../components/utils/LimitValue";
 import KalmanFilter from "kalmanjs";
+import Compass from "../components/Compass";
 
 export interface MagnetoMessage {
-  rssi: number;
-  bt_addr: string;
+  rssi?: number;
+  bt_addr?: string;
   knobs: {
     heading?: number;
     balance: number;
@@ -47,7 +40,7 @@ export default function Home() {
     const fx3 = new Freeverb().connect(fx2);
 
     const moonGain = new Gain(0).connect(fx3);
-    const sulfurGain = new Gain(0).connect(fx3);
+    const sulfurGain = new Gain(1).connect(fx3);
     const sunGain = new Gain(0).connect(fx3);
 
     socket?.on("connect", (res) => {
@@ -95,12 +88,13 @@ export default function Home() {
             gain: gainCalculation(filteredRSSI),
           });
         } else {
+          setLastMsg(msg);
           // console.log(msg.bt_addr);
         }
 
         fx1.set({
           wet: limitValue(
-            offsetFrom(msg?.knobs?.heading, config.earthFieldBalance)
+            offsetFrom(msg?.knobs?.heading, config.targetHeading) / 50
           ),
         });
 
@@ -145,8 +139,16 @@ export default function Home() {
         </h1>
         <hr />
         <h3>
-          MuEx2Q RSSI: {lastMsg?.rssi.toFixed(2)} | Gain:{" "}
-          {gainCalculation(lastMsg?.rssi).toFixed(2)}
+          MuEx2Q RSSI: {lastMsg?.rssi?.toFixed(2)} | Gain:{" "}
+          {gainCalculation(lastMsg?.rssi)?.toFixed(2)}
+        </h3>
+        <hr />
+        <Compass direction={lastMsg?.knobs?.heading} />
+        <h3>
+          Heading: {lastMsg?.knobs?.heading} | offset:{" "}
+          {limitValue(
+            offsetFrom(lastMsg?.knobs?.heading, config.targetHeading) / 50
+          )}
         </h3>
         <hr />
         <h3>
@@ -171,15 +173,6 @@ export default function Home() {
           ).toFixed(2)}
         </h3>
       </main>
-
-      {/* <button
-        onClick={() => {
-          setAudioCtxStarted(!AudioCtxStarted);
-        }}
-      >
-        {AudioCtxStarted ? "Stop" : "Start"} Sound
-      </button>
-      {AudioCtxStarted ? <Sound msg={lastMsg} /> : null} */}
     </div>
   );
 }

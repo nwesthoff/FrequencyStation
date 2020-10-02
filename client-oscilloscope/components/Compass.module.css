@@ -15,7 +15,7 @@
   background: #1d65f0;
   border: 1px solid #999;
   position: relative;
-  transition: transform 0.5s linear;
+  /* transition: transform 0.5s linear; */
 }
 
 .dial:after {

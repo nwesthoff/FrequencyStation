@@ -1,4 +1,5 @@
 export const config = {
+  targetHeading: 120,
   earthFieldBalance: 0.74,
   magneticVariance: 0.23,
   magneticFrequency: 0.44,
