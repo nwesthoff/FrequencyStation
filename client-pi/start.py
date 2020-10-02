@@ -48,14 +48,9 @@ def beaconMsg(bt_addr, rssi, packet, additional_info):
     # print("<%s, %d> %s %s" % (bt_addr, rssi, packet, additional_info))
 
 
-scanner = BeaconScanner(beaconMsg,
-                        device_filter=EddystoneFilter(
-                            namespace=["f7826da6bc5b71e0893e"]),
-                        packet_filter=[EddystoneUIDFrame]
-                        )
+scanner = BeaconScanner(beaconMsg, packet_filter=[EddystoneUIDFrame])
 
 # INITIALISATION DONE
-
 
 try:
     scanner.start()
