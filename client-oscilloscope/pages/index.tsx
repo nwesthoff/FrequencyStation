@@ -32,6 +32,7 @@ export default function Home() {
   const socket = useSocket(
     process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"
   );
+
   const [lastMsg, setLastMsg] = useState<MagnetoMessage>(null);
   const filteredRssi = {
     MutPUc: new KalmanFilter(),
@@ -46,43 +47,43 @@ export default function Home() {
     const fx2 = new PitchShift(12).connect(fx1);
     const fx3 = new Freeverb().connect(fx2);
 
-    const moonGain = new Gain(0).connect(fx3);
-    const sulfurGain = new Gain(0).connect(fx3);
-    const sunGain = new Gain(0).connect(fx3);
+    const muex2qGain = new Gain(0).connect(fx3);
+    const mutpucGain = new Gain(0).connect(fx3);
+    const mukio3Gain = new Gain(0).connect(fx3);
 
     socket?.on("connect", (res) => {
-      const moonPlayer = new Player({
-        url: "/audio/moon.wav",
+      const muex2qPlayer = new Player({
+        url: "/audio/amsterdam-triangle.wav",
         loop: true,
         autostart: true,
       });
-      const sulfurPlayer = new Player({
-        url: "/audio/ursa-minor.wav",
+      const mutpucPlayer = new Player({
+        url: "/audio/earth-square.wav",
         loop: true,
         autostart: true,
       });
-      const sunPlayer = new Player({
-        url: "/audio/virgo.wav",
+      const mukio3Player = new Player({
+        url: "/audio/universe-circle.wav",
         loop: true,
         autostart: true,
       });
 
-      moonPlayer.connect(moonGain);
-      sulfurPlayer.connect(sulfurGain);
-      sunPlayer.connect(sunGain);
+      muex2qPlayer.connect(muex2qGain);
+      mutpucPlayer.connect(mutpucGain);
+      mukio3Player.connect(mukio3Gain);
 
       socket.on("message", (msg: MagnetoMessage) => {
         if (msg.bt_addr === "f4:fd:48:5f:3c:0c") {
           // BEACONID: MutPUc
           const filteredRSSI = filteredRssi.MutPUc.filter(msg.rssi);
-          sulfurGain.set({
+          mutpucGain.set({
             gain: gainCalculation(filteredRSSI),
           });
         } else if (msg.bt_addr === "cf:99:79:62:06:42") {
           // BEACONID: MukIO3
           const filteredRSSI = filteredRssi.MukIO3.filter(msg.rssi);
 
-          sunGain.set({
+          mukio3Gain.set({
             gain: gainCalculation(filteredRSSI),
           });
         } else if (msg.bt_addr === "fb:f3:2f:d2:92:80") {
@@ -91,7 +92,7 @@ export default function Home() {
 
           setLastMsg({ ...msg, rssi: filteredRSSI });
 
-          moonGain.set({
+          muex2qGain.set({
             gain: gainCalculation(filteredRSSI),
           });
         } else {
@@ -118,9 +119,9 @@ export default function Home() {
       });
 
       return () => {
-        moonPlayer.dispose();
-        sulfurPlayer.dispose();
-        sunPlayer.dispose();
+        muex2qPlayer.dispose();
+        mutpucPlayer.dispose();
+        mukio3Player.dispose();
         fx1.dispose();
         fx2.dispose();
         fx3.dispose();
