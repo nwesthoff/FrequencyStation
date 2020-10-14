@@ -19,3 +19,17 @@ hr {
 * {
   box-sizing: border-box;
 }
+
+button {
+  cursor: pointer;
+  margin: 0.4rem;
+  background: #4c81eb;
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+}
+
+button:hover {
+  background: #154bb6;
+}

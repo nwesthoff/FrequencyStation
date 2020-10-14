@@ -25,6 +25,7 @@ export default function Home() {
   const socket = useSocket(
     process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"
   );
+  const [useCompass, setUseCompass] = useState(false);
 
   const [lastMsg, setLastMsg] = useState<MagnetoMessage>(null);
   const filteredRssi = {
@@ -95,7 +96,9 @@ export default function Home() {
 
         fx1.set({
           wet: limitValue(
-            offsetFrom(msg?.knobs?.heading, config.targetHeading) / 50
+            useCompass
+              ? offsetFrom(msg?.knobs?.heading, config.targetHeading) / 50
+              : offsetFrom(msg?.knobs?.balance, config.earthFieldBalance)
           ),
         });
 
@@ -144,11 +147,20 @@ export default function Home() {
           {gainCalculation(lastMsg?.rssi)?.toFixed(2)}
         </h3>
         <hr />
-        <Compass direction={lastMsg?.knobs?.heading} />
-        <h3>
+        <div style={{ opacity: useCompass ? 1 : 0.5 }}>
+          <Compass direction={lastMsg?.knobs?.heading} />
+        </div>
+        <button onClick={() => setUseCompass(!useCompass)}>
+          toggle compass {useCompass ? "off" : "on"}
+        </button>
+        <small style={{ opacity: 0.6 }}>
+          the compass doesn't work correctly, but it is fun when it does so if
+          the compass is moving like it should, try this toggle
+        </small>
+        <h3 style={{ opacity: useCompass ? 1 : 0.5 }}>
           Heading: {lastMsg?.knobs?.heading} | offset:{" "}
           {limitValue(
-            offsetFrom(lastMsg?.knobs?.heading, config.targetHeading) / 50
+            offsetFrom(lastMsg?.knobs?.heading, config.targetHeading, 5) / 50
           )}
         </h3>
         <hr />
@@ -159,18 +171,18 @@ export default function Home() {
             config.magneticVariance
           ).toFixed(2)}
         </h3>
+        <h3 style={{ opacity: useCompass ? 0.5 : 1 }}>
+          balance: {lastMsg?.knobs?.balance} | offset:{" "}
+          {offsetFrom(
+            lastMsg?.knobs?.balance,
+            config.earthFieldBalance
+          ).toFixed(2)}
+        </h3>
         <h3>
           frequency: {lastMsg?.knobs?.frequency} | offset:{" "}
           {offsetFrom(
             lastMsg?.knobs?.frequency,
             config.magneticFrequency
-          ).toFixed(2)}
-        </h3>
-        <h3>
-          balance: {lastMsg?.knobs?.balance} | offset:{" "}
-          {offsetFrom(
-            lastMsg?.knobs?.balance,
-            config.earthFieldBalance
           ).toFixed(2)}
         </h3>
       </main>
