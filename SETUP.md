@@ -1,4 +1,4 @@
-# Set-up of the Frequency Station Interaction
+# Set-up of the Magnetoscope Interaction
 
 There's four main parts to the system (well, a couple more, but they should be running continuously and don't require setup).
 
