@@ -9,6 +9,7 @@ import { Player, BitCrusher, Freeverb, Gain, PitchShift } from "tone";
 import { limitValue } from "../components/utils/LimitValue";
 import KalmanFilter from "kalmanjs";
 import Compass from "../components/Compass";
+import Link from "next/link";
 
 export interface MagnetoMessage {
   rssi?: number;
@@ -133,7 +134,12 @@ export default function Home() {
       </Head>
 
       {!soundRegistered ? (
-        <button onClick={registerSound}>go to app</button>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <button onClick={registerSound}>go to app</button>
+          <Link href="/blur">
+            <a style={{ marginLeft: "1.2rem" }}>Open Blur Version</a>
+          </Link>
+        </div>
       ) : (
         <main className={styles.main}>
           <h1>
