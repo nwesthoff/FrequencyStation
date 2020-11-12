@@ -155,9 +155,13 @@ export default function Home() {
               padding: "1.2rem 2rem",
             }}
           >
-            <div>universe: {gainCalculation(lastMukio3?.rssi) || 0}</div>
-            <div>world: {gainCalculation(lastMutpuc?.rssi) || 0}</div>
-            <div>city: {gainCalculation(lastMuex2q?.rssi) || 0}</div>
+            <div>
+              universe: {gainCalculation(lastMukio3?.rssi).toFixed(2) || 0}
+            </div>
+            <div>
+              world: {gainCalculation(lastMutpuc?.rssi).toFixed(2) || 0}
+            </div>
+            <div>city: {gainCalculation(lastMuex2q?.rssi).toFixed(2) || 0}</div>
           </div>
           {/* SYMBOL BLUR COMPONENTS */}
           <div

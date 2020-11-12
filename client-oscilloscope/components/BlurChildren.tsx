@@ -16,7 +16,7 @@ export default function BlurChildren({
         flexDirection: "column",
         alignItems: "center",
         opacity: normalizedBlurVal || 0,
-        filter: `blur(${(normalizedBlurVal || 0) * 16}px)`,
+        filter: `blur(${(1 - (normalizedBlurVal || 0)) * 32}px)`,
       }}
     >
       {children}
