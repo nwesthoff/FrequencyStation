@@ -27,7 +27,7 @@ export default function Home() {
     process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"
   );
 
-  const [useCompass, setUseCompass] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
   const [soundRegistered, setSoundRegistered] = useState(false);
 
   const [lastMutpuc, setLastMutpuc] = useState<MagnetoMessage>(null);
@@ -111,9 +111,7 @@ export default function Home() {
 
       fx1.set({
         wet: limitValue(
-          useCompass
-            ? offsetFrom(msg?.knobs?.heading, config.targetHeading) / 50
-            : offsetFrom(msg?.knobs?.balance, config.earthFieldBalance)
+          offsetFrom(msg?.knobs?.balance, config.earthFieldBalance)
         ),
       });
 
@@ -147,30 +145,51 @@ export default function Home() {
             style={{
               position: "fixed",
               top: 0,
-              opacity: 0.3,
               width: "90%",
               maxWidth: "768px",
               justifyContent: "space-between",
+              alignItems: "center",
               display: "flex",
               padding: "1.2rem 2rem",
             }}
           >
-            <div>
-              <b>universe</b>:{" "}
-              {blurGainCalculation(lastMukio3?.rssi).toFixed(2) || 0} <br />
-              rssi: {lastMukio3?.rssi?.toFixed(2) || 0}
-            </div>
-            <div>
-              <b>world</b>:{" "}
-              {blurGainCalculation(lastMutpuc?.rssi).toFixed(2) || 0}
-              <br />
-              rssi: {lastMutpuc?.rssi?.toFixed(2) || 0}
-            </div>
-            <div>
-              <b>city</b>:{" "}
-              {blurGainCalculation(lastMuex2q?.rssi).toFixed(2) || 0}
-              <br />
-              rssi: {lastMuex2q?.rssi?.toFixed(2) || 0}
+            <button
+              style={{
+                backgroundColor: "black",
+                border: "1px solid white",
+                opacity: showDebug ? 1 : 0.3,
+              }}
+              onClick={() => setShowDebug(!showDebug)}
+            >
+              Show Debug
+            </button>
+            <div
+              style={{
+                opacity: showDebug ? 0.7 : 0,
+                marginLeft: "3.2rem",
+                flexGrow: 1,
+                justifyContent: "space-between",
+                alignItems: "center",
+                display: "flex",
+              }}
+            >
+              <div>
+                <b>universe</b>:{" "}
+                {blurGainCalculation(lastMukio3?.rssi).toFixed(2) || 0} <br />
+                rssi: {lastMukio3?.rssi?.toFixed(2) || 0}
+              </div>
+              <div>
+                <b>world</b>:{" "}
+                {blurGainCalculation(lastMutpuc?.rssi).toFixed(2) || 0}
+                <br />
+                rssi: {lastMutpuc?.rssi?.toFixed(2) || 0}
+              </div>
+              <div>
+                <b>city</b>:{" "}
+                {blurGainCalculation(lastMuex2q?.rssi).toFixed(2) || 0}
+                <br />
+                rssi: {lastMuex2q?.rssi?.toFixed(2) || 0}
+              </div>
             </div>
           </div>
           {/* SYMBOL BLUR COMPONENTS */}
