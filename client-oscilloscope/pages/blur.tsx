@@ -3,7 +3,7 @@ import Head from "next/head";
 import styles from "../styles/Blur.module.css";
 import { useSocket } from "../api/useSocket";
 import { offsetFrom } from "../components/utils/OffsetFrom";
-import { gainCalculation } from "../components/utils/GainCalculation";
+import { blurGainCalculation } from "../components/utils/GainCalculation";
 import { config } from "../config";
 import { Player, BitCrusher, Freeverb, Gain, PitchShift } from "tone";
 import { limitValue } from "../components/utils/LimitValue";
@@ -85,7 +85,7 @@ export default function Home() {
         setLastMutpuc({ ...msg, rssi: filteredRSSI });
 
         mutpucGain.set({
-          gain: gainCalculation(filteredRSSI),
+          gain: blurGainCalculation(filteredRSSI),
         });
       } else if (msg.bt_addr === "cf:99:79:62:06:42") {
         // BEACONID: MukIO3
@@ -93,7 +93,7 @@ export default function Home() {
         setLastMukio3({ ...msg, rssi: filteredRSSI });
 
         mukio3Gain.set({
-          gain: gainCalculation(filteredRSSI),
+          gain: blurGainCalculation(filteredRSSI),
         });
       } else if (msg.bt_addr === "fb:f3:2f:d2:92:80") {
         // BEACONID: MuEx2Q
@@ -102,7 +102,7 @@ export default function Home() {
         setLastMuex2q({ ...msg, rssi: filteredRSSI });
 
         muex2qGain.set({
-          gain: gainCalculation(filteredRSSI),
+          gain: blurGainCalculation(filteredRSSI),
         });
       } else {
         // setLastMsg(msg);
@@ -156,12 +156,22 @@ export default function Home() {
             }}
           >
             <div>
-              universe: {gainCalculation(lastMukio3?.rssi).toFixed(2) || 0}
+              <b>universe</b>:{" "}
+              {blurGainCalculation(lastMukio3?.rssi).toFixed(2) || 0} <br />
+              rssi: {lastMukio3?.rssi?.toFixed(2) || 0}
             </div>
             <div>
-              world: {gainCalculation(lastMutpuc?.rssi).toFixed(2) || 0}
+              <b>world</b>:{" "}
+              {blurGainCalculation(lastMutpuc?.rssi).toFixed(2) || 0}
+              <br />
+              rssi: {lastMutpuc?.rssi?.toFixed(2) || 0}
             </div>
-            <div>city: {gainCalculation(lastMuex2q?.rssi).toFixed(2) || 0}</div>
+            <div>
+              <b>city</b>:{" "}
+              {blurGainCalculation(lastMuex2q?.rssi).toFixed(2) || 0}
+              <br />
+              rssi: {lastMuex2q?.rssi?.toFixed(2) || 0}
+            </div>
           </div>
           {/* SYMBOL BLUR COMPONENTS */}
           <div
@@ -173,15 +183,21 @@ export default function Home() {
               flexWrap: "wrap",
             }}
           >
-            <BlurChildren normalizedBlurVal={gainCalculation(lastMukio3?.rssi)}>
+            <BlurChildren
+              normalizedBlurVal={blurGainCalculation(lastMukio3?.rssi)}
+            >
               <h2 style={{ fontSize: "3.2em" }}>Universe</h2>
               <BsCircleFill size="large" />
             </BlurChildren>
-            <BlurChildren normalizedBlurVal={gainCalculation(lastMutpuc?.rssi)}>
+            <BlurChildren
+              normalizedBlurVal={blurGainCalculation(lastMutpuc?.rssi)}
+            >
               <h2 style={{ fontSize: "3.2em" }}>World</h2>
               <BsSquareFill size="large" />
             </BlurChildren>
-            <BlurChildren normalizedBlurVal={gainCalculation(lastMuex2q?.rssi)}>
+            <BlurChildren
+              normalizedBlurVal={blurGainCalculation(lastMuex2q?.rssi)}
+            >
               <h2 style={{ fontSize: "3.2em" }}>City</h2>
               <BsTriangleFill size="large" />
             </BlurChildren>
