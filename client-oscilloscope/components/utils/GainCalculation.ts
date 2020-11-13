@@ -6,9 +6,9 @@ export const gainCalculation = (rssi: number) => {
 };
 
 export const blurGainCalculation = (rssi: number) => {
-  const target = 65;
+  const target = 55;
   rssi = Math.abs(rssi);
   rssi = rssi < target ? target : rssi;
   console.log(rssi);
-  return limitValue(1 - (rssi - target) / 10);
+  return limitValue(1 - (rssi - target) / 8);
 };

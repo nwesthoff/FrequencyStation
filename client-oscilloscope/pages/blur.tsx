@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import styles from "../styles/Blur.module.css";
 import { useSocket } from "../api/useSocket";
@@ -9,7 +9,12 @@ import { Player, BitCrusher, Freeverb, Gain, PitchShift } from "tone";
 import { limitValue } from "../components/utils/LimitValue";
 import KalmanFilter from "kalmanjs";
 import BlurChildren from "../components/BlurChildren";
-import { BsTriangleFill, BsCircleFill, BsSquareFill } from "react-icons/bs";
+import {
+  BsTriangleFill,
+  BsCircleFill,
+  BsSquareFill,
+  BsFullscreen,
+} from "react-icons/bs";
 
 export interface MagnetoMessage {
   rssi?: number;
@@ -30,9 +35,14 @@ export default function Home() {
   const [showDebug, setShowDebug] = useState(false);
   const [soundRegistered, setSoundRegistered] = useState(false);
 
+  const fsRef = useRef(null);
   const [lastMutpuc, setLastMutpuc] = useState<MagnetoMessage>(null);
   const [lastMuex2q, setLastMuex2q] = useState<MagnetoMessage>(null);
   const [lastMukio3, setLastMukio3] = useState<MagnetoMessage>(null);
+  const [mutpucFound, setMutpucFound] = useState(false);
+  const [mukio3Found, setMukio3Found] = useState(false);
+  const [muex2qFound, setMuex2qFound] = useState(false);
+
   const filteredRssi = {
     MutPUc: new KalmanFilter(),
     MuEx2Q: new KalmanFilter(),
@@ -84,6 +94,10 @@ export default function Home() {
         const filteredRSSI = filteredRssi.MutPUc.filter(msg.rssi);
         setLastMutpuc({ ...msg, rssi: filteredRSSI });
 
+        if (blurGainCalculation(msg.rssi) >= 1.0) {
+          setMutpucFound(true);
+        }
+
         mutpucGain.set({
           gain: blurGainCalculation(filteredRSSI),
         });
@@ -92,14 +106,21 @@ export default function Home() {
         const filteredRSSI = filteredRssi.MukIO3.filter(msg.rssi);
         setLastMukio3({ ...msg, rssi: filteredRSSI });
 
+        if (blurGainCalculation(msg.rssi) >= 1.0) {
+          setMukio3Found(true);
+        }
+
         mukio3Gain.set({
           gain: blurGainCalculation(filteredRSSI),
         });
       } else if (msg.bt_addr === "fb:f3:2f:d2:92:80") {
         // BEACONID: MuEx2Q
         const filteredRSSI = filteredRssi.MuEx2Q.filter(msg.rssi);
-
         setLastMuex2q({ ...msg, rssi: filteredRSSI });
+
+        if (blurGainCalculation(msg.rssi) >= 1.0) {
+          setMuex2qFound(true);
+        }
 
         muex2qGain.set({
           gain: blurGainCalculation(filteredRSSI),
@@ -130,14 +151,28 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={fsRef}>
       <Head>
         <title>Magnetoscope - Blur Experiment</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       {!soundRegistered ? (
-        <button onClick={registerSound}>go to app</button>
+        <div>
+          <button
+            style={{
+              backgroundColor: "black",
+              border: "1px solid white",
+              opacity: showDebug ? 1 : 0.3,
+            }}
+            onClick={() => {
+              fsRef.current.requestFullscreen();
+            }}
+          >
+            <BsFullscreen />
+          </button>
+          <button onClick={registerSound}>go to app</button>
+        </div>
       ) : (
         <main className={styles.main}>
           {/* DEBUG DATA */}
@@ -153,6 +188,18 @@ export default function Home() {
               padding: "1.2rem 2rem",
             }}
           >
+            <button
+              style={{
+                backgroundColor: "black",
+                border: "1px solid white",
+                opacity: showDebug ? 1 : 0.3,
+              }}
+              onClick={() => {
+                fsRef.current.requestFullscreen();
+              }}
+            >
+              <BsFullscreen />
+            </button>
             <button
               style={{
                 backgroundColor: "black",
@@ -177,18 +224,24 @@ export default function Home() {
                 <b>universe</b>:{" "}
                 {blurGainCalculation(lastMukio3?.rssi).toFixed(2) || 0} <br />
                 rssi: {lastMukio3?.rssi?.toFixed(2) || 0}
+                <br />
+                found: {mukio3Found ? "yes" : "no"}
               </div>
               <div>
                 <b>world</b>:{" "}
                 {blurGainCalculation(lastMutpuc?.rssi).toFixed(2) || 0}
                 <br />
                 rssi: {lastMutpuc?.rssi?.toFixed(2) || 0}
+                <br />
+                found: {mutpucFound ? "yes" : "no"}
               </div>
               <div>
                 <b>city</b>:{" "}
                 {blurGainCalculation(lastMuex2q?.rssi).toFixed(2) || 0}
                 <br />
                 rssi: {lastMuex2q?.rssi?.toFixed(2) || 0}
+                <br />
+                found: {muex2qFound ? "yes" : "no"}
               </div>
             </div>
           </div>
@@ -206,19 +259,28 @@ export default function Home() {
               normalizedBlurVal={blurGainCalculation(lastMukio3?.rssi)}
             >
               <h2 style={{ fontSize: "3.2em" }}>Universe</h2>
-              <BsCircleFill size="large" />
+              <BsCircleFill
+                size={250}
+                // style={{ fill: mukio3Found ? "green" : "white" }}
+              />
             </BlurChildren>
             <BlurChildren
               normalizedBlurVal={blurGainCalculation(lastMutpuc?.rssi)}
             >
               <h2 style={{ fontSize: "3.2em" }}>World</h2>
-              <BsSquareFill size="large" />
+              <BsSquareFill
+                size={250}
+                // style={{ fill: mutpucFound ? "green" : "white" }}
+              />
             </BlurChildren>
             <BlurChildren
               normalizedBlurVal={blurGainCalculation(lastMuex2q?.rssi)}
             >
               <h2 style={{ fontSize: "3.2em" }}>City</h2>
-              <BsTriangleFill size="large" />
+              <BsTriangleFill
+                size={250}
+                // style={{ fill: muex2qFound ? "green" : "white" }}
+              />
             </BlurChildren>
           </div>
         </main>
